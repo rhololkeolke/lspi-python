@@ -13,3 +13,5 @@ the authors. The implementation is available for download at
 http://www.cs.duke.edu/research/AI/LSPI/
 
 """
+
+from sample import Sample  # noqa
