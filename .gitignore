@@ -1,3 +1,7 @@
+# Sphinx
+docs/build/
+docs/source/autodoc
+
 # autoenv script
 .env
 
