@@ -8,7 +8,7 @@ class Sample(object):
     Parameters
     ----------
 
-    state : Any
+    state : numpy.array
         State of the environment at the start of the sample.
         ``s`` in the sample tuple.
         (The usual type is a numpy array.)
@@ -18,7 +18,7 @@ class Sample(object):
     reward : float
         Reward received from the environment.
         ``r`` in the sample tuple
-    next_state : Any
+    next_state : numpy.array
         State of the environment after executing the sample's action.
         ``s'`` in the sample tuple
         (The type should match that of state.)
