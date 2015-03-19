@@ -5,6 +5,9 @@ docs/source/autodoc
 # autoenv script
 .env
 
+# virtualenv
+lspienv/
+
 ##########
 # Python #
 ##########
