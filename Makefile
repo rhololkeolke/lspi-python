@@ -6,7 +6,7 @@ flake8:
 	flake8 lspi
 
 html-docs:
-	@sphinx-apidoc -f -o docs/source/autodoc lspi
+	@sphinx-apidoc -f -e -o docs/source/autodoc lspi
 	PYTHONPATH=.. $(MAKE) -C docs html
 
 clean: clean-pyc clean-docs
