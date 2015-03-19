@@ -2,7 +2,9 @@
 """Contains unit tests for the basis function module."""
 from unittest import TestCase
 
-from lspi.basis_functions import BasisFunction, OneDimensionalPolynomialBasis
+from lspi.basis_functions import (BasisFunction,
+    OneDimensionalPolynomialBasis,
+    RadialBasisFunction)
 import numpy as np
 
 class TestBasisFunction(TestCase):
@@ -70,10 +72,10 @@ class TestOneDimensionalPolynomialBasis(TestCase):
 
     def test_evaluate(self):
 
-        phi = self.basis.evaluate(np.array([2]), 0)
+        phi = self.basis.evaluate(np.array([2]), 1)
         self.assertEqual(phi.shape, (6, ))
         np.testing.assert_array_almost_equal(phi,
-                                             np.array([1., 2., 4., 0., 0., 0.]))
+                                             np.array([0., 0., 0., 1., 2., 4.]))
 
     def test_evaluate_out_of_bounds_action(self):
 
@@ -87,3 +89,82 @@ class TestOneDimensionalPolynomialBasis(TestCase):
 
         with self.assertRaises(ValueError):
             self.basis.evaluate(np.array([2, 3]), 0)
+
+class TestRadialBasisFunction(TestCase):
+    def setUp(self):
+
+        self.means = [-np.ones((3, )), np.zeros((3, )), np.ones((3, ))]
+        self.gamma = 1
+        self.num_actions = 2
+        self.basis = RadialBasisFunction(self.means,
+                                         self.gamma,
+                                         self.num_actions)
+        self.state = np.zeros((3, ))
+
+    def test_specify_means(self):
+
+        for mean, expected_mean in zip(self.basis.means, self.means):
+            np.testing.assert_array_almost_equal(mean, expected_mean)
+
+    def test_empty_means_list(self):
+        with self.assertRaises(ValueError):
+            RadialBasisFunction([], self.gamma, self.num_actions)
+
+    def test_mismatched_mean_shapes(self):
+        with self.assertRaises(ValueError):
+            RadialBasisFunction([np.zeros((3, )),
+                                 -np.ones((2, )),
+                                 np.ones((3, ))],
+                                self.gamma,
+                                self.num_actions)
+
+    def test_specify_gamma(self):
+        self.assertAlmostEqual(self.gamma, self.basis.gamma)
+
+    def test_out_of_bounds_gamma(self):
+        with self.assertRaises(ValueError):
+            RadialBasisFunction(self.means, 0, self.num_actions)
+
+    def test_specify_actions(self):
+
+        self.assertEqual(self.basis.num_actions, self.num_actions)
+
+    def test_out_of_bounds_num_action(self):
+
+        with self.assertRaises(ValueError):
+            RadialBasisFunction(self.means, self.gamma, 0)
+
+        with self.assertRaises(ValueError):
+            RadialBasisFunction(self.means, self.gamma, -1)
+
+    def test_size(self):
+
+        self.assertEqual(self.basis.size(), 8)
+
+    def test_evaluate(self):
+
+        phi = self.basis.evaluate(self.state, 0)
+        self.assertEqual(phi.shape, (8, ))
+        np.testing.assert_array_almost_equal(phi,
+                                             np.array([1.,
+                                                       0.0498,
+                                                       1.,
+                                                       0.0498,
+                                                       0.,
+                                                       0.,
+                                                       0.,
+                                                       0.]),
+                                             4)
+
+    def test_evaluate_out_of_bounds_action(self):
+
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(self.state, 2)
+
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(self.state, -1)
+
+    def test_evaluate_incorrect_state_dimensions(self):
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.zeros((2, )), 0)
