@@ -71,8 +71,8 @@ class TestPolicy(TestCase):
         policy_copy = copy(orig_policy)
 
         self.assertNotEqual(id(orig_policy), id(policy_copy))
-        self.assertEqual(orig_policy.basis.num_actions,
-                         policy_copy.basis.num_actions)
+        self.assertEqual(orig_policy.num_actions,
+                         policy_copy.num_actions)
         self.assertEqual(orig_policy.discount, policy_copy.discount)
         self.assertEqual(orig_policy.explore, policy_copy.explore)
         np.testing.assert_array_almost_equal(orig_policy.weights,
@@ -113,7 +113,7 @@ class TestPolicy(TestCase):
     def test_best_action_no_ties(self):
 
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertFalse(TestPolicy.list_has_duplicates(q_values))
 
@@ -126,7 +126,7 @@ class TestPolicy(TestCase):
             Policy.TieBreakingStrategy.FirstWins
 
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertTrue(TestPolicy.list_has_duplicates(q_values))
 
@@ -139,7 +139,7 @@ class TestPolicy(TestCase):
             Policy.TieBreakingStrategy.LastWins
 
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertTrue(TestPolicy.list_has_duplicates(q_values))
 
@@ -152,7 +152,7 @@ class TestPolicy(TestCase):
             Policy.TieBreakingStrategy.RandomWins
 
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertTrue(TestPolicy.list_has_duplicates(q_values))
 
@@ -177,7 +177,7 @@ class TestPolicy(TestCase):
         # this way we know the tie breaking strategy isn't introducing
         # the randomness
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertFalse(TestPolicy.list_has_duplicates(q_values))
 
@@ -198,7 +198,7 @@ class TestPolicy(TestCase):
         # this way we know the tie breaking strategy isn't introducing
         # the randomness
         q_values = [self.poly_policy.calc_q_value(self.state, action)
-            for action in range(self.poly_policy.basis.num_actions)]
+            for action in range(self.poly_policy.num_actions)]
 
         self.assertFalse(TestPolicy.list_has_duplicates(q_values))
 
@@ -215,3 +215,21 @@ class TestPolicy(TestCase):
     def test_select_action_mismatched_state_dimensions(self):
         with self.assertRaises(ValueError):
             self.poly_policy.select_action(np.ones((2,)))
+
+    def test_num_actions_getter(self):
+        self.assertEqual(self.poly_policy.num_actions,
+                         self.poly_policy.basis.num_actions)
+
+        self.poly_policy.basis.num_actions = 10
+
+        self.assertEqual(self.poly_policy.num_actions,
+                         self.poly_policy.basis.num_actions)
+
+    def test_num_actions_setter(self):
+        self.assertEqual(self.poly_policy.num_actions,
+                         self.poly_policy.basis.num_actions)
+
+        self.poly_policy.num_actions = 10
+
+        self.assertEqual(self.poly_policy.num_actions,
+                         self.poly_policy.basis.num_actions)

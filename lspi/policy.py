@@ -199,3 +199,36 @@ class Policy(object):
             return random.choice(range(self.basis.num_actions))
         else:
             return self.best_action(state)
+
+    @property
+    def num_actions(self):
+        r"""Return number of possible actions.
+
+        This number should always match the value stored in basis.num_actions.
+
+        Return
+        ------
+        int
+            Number of possible actions. In range [1, :math:`\infty`)
+
+        """
+        return self.basis.num_actions
+
+    @num_actions.setter
+    def num_actions(self, value):
+        """Set the number of possible actions.
+
+        This number should always match the value stored in basis.num_actions.
+
+        Parameters
+        ----------
+        value: int
+            Value to set num_actions to. Must be >= 1
+
+        Raises
+        ------
+        ValueError
+            If value is < 1
+
+        """
+        self.basis.num_actions = value
