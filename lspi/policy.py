@@ -171,3 +171,31 @@ class Policy(object):
             return best_actions[-1]
         else:
             return random.choice(best_actions)
+
+    def select_action(self, state):
+        """With random probability select best action or random action.
+
+        If the random number is below the explore value then pick a random
+        value otherwise pick the best action according to the basis and
+        policy weights.
+
+        Parameters
+        ----------
+        state: numpy.array
+            State vector
+
+        Returns
+        -------
+        int
+            Action index
+
+        Raises
+        ------
+        ValueError
+            If state's dimensions do not match basis functions expectations.
+
+        """
+        if random.random() < self.explore:
+            return random.choice(range(self.basis.num_actions))
+        else:
+            return self.best_action(state)

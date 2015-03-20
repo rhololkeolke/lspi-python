@@ -171,3 +171,47 @@ class TestPolicy(TestCase):
     def test_best_action_mismatched_state_dimensions(self):
         with self.assertRaises(ValueError):
             self.poly_policy.best_action(np.ones((2,)))
+
+    def test_select_action_random(self):
+        # first verify there are no ties
+        # this way we know the tie breaking strategy isn't introducing
+        # the randomness
+        q_values = [self.poly_policy.calc_q_value(self.state, action)
+            for action in range(self.poly_policy.basis.num_actions)]
+
+        self.assertFalse(TestPolicy.list_has_duplicates(q_values))
+
+        self.poly_policy.explore = 1.0
+        self.poly_policy.tie_breaking_strategy = \
+            Policy.TieBreakingStrategy.FirstWins
+
+        # this is set up to evaluate to no tie
+        num_times = 10
+        best_actions = [self.poly_policy.select_action(self.state)
+                        for i in range(num_times)]
+
+        self.assertNotEqual(sum(best_actions), 0)
+        self.assertNotEqual(sum(best_actions), num_times)
+
+    def test_select_action_deterministic(self):
+        # first verify there are no ties
+        # this way we know the tie breaking strategy isn't introducing
+        # the randomness
+        q_values = [self.poly_policy.calc_q_value(self.state, action)
+            for action in range(self.poly_policy.basis.num_actions)]
+
+        self.assertFalse(TestPolicy.list_has_duplicates(q_values))
+
+        self.poly_policy.explore = 0.0
+        self.poly_policy.tie_breaking_strategy = \
+            Policy.TieBreakingStrategy.FirstWins
+
+        # this is set up to evaluate to no tie
+        num_times = 10
+        best_actions = [self.poly_policy.select_action(self.state)
+                        for i in range(num_times)]
+        self.assertEqual(sum(best_actions), 0)
+
+    def test_select_action_mismatched_state_dimensions(self):
+        with self.assertRaises(ValueError):
+            self.poly_policy.select_action(np.ones((2,)))
