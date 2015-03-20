@@ -81,6 +81,15 @@ class TestFakeBasis(TestCase):
     def test_num_actions_property(self):
         self.assertEqual(self.basis.num_actions, 6)
 
+    def test_num_actions_setter(self):
+        self.basis.num_actions = 10
+
+        self.assertEqual(self.basis.num_actions, 10)
+
+    def test_num_actions_setter_invalid_value(self):
+        with self.assertRaises(ValueError):
+            self.basis.num_actions = 0
+
     def test_size(self):
         self.assertEqual(self.basis.size(), 1)
 
@@ -108,6 +117,15 @@ class TestOneDimensionalPolynomialBasis(TestCase):
     def test_specify_actions(self):
 
         self.assertEqual(self.basis.num_actions, 2)
+
+    def test_num_actions_setter(self):
+        self.basis.num_actions = 10
+
+        self.assertEqual(self.basis.num_actions, 10)
+
+    def test_num_actions_setter_invalid_value(self):
+        with self.assertRaises(ValueError):
+            self.basis.num_actions = 0
 
     def test_out_of_bounds_degree(self):
 
@@ -184,6 +202,15 @@ class TestRadialBasisFunction(TestCase):
     def test_specify_actions(self):
 
         self.assertEqual(self.basis.num_actions, self.num_actions)
+
+    def test_num_actions_setter(self):
+        self.basis.num_actions = 10
+
+        self.assertEqual(self.basis.num_actions, 10)
+
+    def test_num_actions_setter_invalid_value(self):
+        with self.assertRaises(ValueError):
+            self.basis.num_actions = 0
 
     def test_out_of_bounds_num_action(self):
 

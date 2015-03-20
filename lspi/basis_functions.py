@@ -169,6 +169,25 @@ class FakeBasis(BasisFunction):
         """Return number of possible actions."""
         return self.__num_actions
 
+    @num_actions.setter
+    def num_actions(self, value):
+        """Set the number of possible actions.
+
+        Parameters
+        ----------
+        value: int
+            Number of possible actions. Must be >= 1.
+
+        Raises
+        ------
+        ValueError
+            If value < 1.
+
+        """
+        if value < 1:
+            raise ValueError('num_actions must be at least 1.')
+        self.__num_actions = value
+
 
 class OneDimensionalPolynomialBasis(BasisFunction):
 
@@ -284,6 +303,25 @@ class OneDimensionalPolynomialBasis(BasisFunction):
     def num_actions(self):
         """Return number of possible actions."""
         return self.__num_actions
+
+    @num_actions.setter
+    def num_actions(self, value):
+        """Set the number of possible actions.
+
+        Parameters
+        ----------
+        value: int
+            Number of possible actions. Must be >= 1.
+
+        Raises
+        ------
+        ValueError
+            If value < 1.
+
+        """
+        if value < 1:
+            raise ValueError('num_actions must be at least 1.')
+        self.__num_actions = value
 
 
 class RadialBasisFunction(BasisFunction):
@@ -437,3 +475,22 @@ class RadialBasisFunction(BasisFunction):
     def num_actions(self):
         """Return number of possible actions."""
         return self.__num_actions
+
+    @num_actions.setter
+    def num_actions(self, value):
+        """Set the number of possible actions.
+
+        Parameters
+        ----------
+        value: int
+            Number of possible actions. Must be >= 1.
+
+        Raises
+        ------
+        ValueError
+            If value < 1.
+
+        """
+        if value < 1:
+            raise ValueError('num_actions must be at least 1.')
+        self.__num_actions = value
