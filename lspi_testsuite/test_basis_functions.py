@@ -16,6 +16,10 @@ class TestBasisFunction(TestCase):
             def evaluate(self, state, action):
                 pass
 
+            @property
+            def num_actions(self):
+                pass
+
         with self.assertRaises(TypeError):
             MissingSizeBasis()
 
@@ -26,24 +30,56 @@ class TestBasisFunction(TestCase):
             def size(self):
                 pass
 
+            @property
+            def num_actions(self):
+                pass
+
         with self.assertRaises(TypeError):
             MissingEvaluateBasis()
 
-    def test_works_with_both_methods_implemented(self):
-        """Test BasisFunction implemention works when all methods defined."""
+    def test_require_num_actions_property(self):
 
-        class ShouldWorkBasis(BasisFunction):
+        class MissingNumActionsProperty(BasisFunction):
             def size(self):
                 pass
 
             def evaluate(self, state, action):
                 pass
 
+        with self.assertRaises(TypeError):
+            MissingNumActionsProperty()
+
+    def test_works_with_both_methods_implemented(self):
+        """Test BasisFunction implemention works when all methods defined."""
+
+        class ShouldWorkBasis(BasisFunction):
+
+            def size(self):
+                pass
+
+            def evaluate(self, state, action):
+                pass
+
+            @property
+            def num_actions(self):
+                pass
+
         ShouldWorkBasis()
+
+    def test_validate_num_actions(self):
+        self.assertEqual(BasisFunction._validate_num_actions(6), 6)
+
+    def test_validate_num_actions_out_of_bounds(self):
+        with self.assertRaises(ValueError):
+            BasisFunction._validate_num_actions(0)
+
 
 class TestFakeBasis(TestCase):
     def setUp(self):
-        self.basis = FakeBasis()
+        self.basis = FakeBasis(6)
+
+    def test_num_actions_property(self):
+        self.assertEqual(self.basis.num_actions, 6)
 
     def test_size(self):
         self.assertEqual(self.basis.size(), 1)
@@ -55,6 +91,10 @@ class TestFakeBasis(TestCase):
     def test_evaluate_negative_action_index(self):
         with self.assertRaises(IndexError):
             self.basis.evaluate(None, -1)
+
+    def test_evaluate_out_of_bounds_action_index(self):
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(None, 6)
 
 class TestOneDimensionalPolynomialBasis(TestCase):
     def setUp(self):

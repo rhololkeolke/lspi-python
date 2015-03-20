@@ -64,6 +64,36 @@ class BasisFunction(object):
         """
         pass  # pragma: no cover
 
+    @abc.abstractproperty
+    def num_actions(self):
+        """Return number of possible actions.
+
+        Returns
+        -------
+        int
+            Number of possible actions.
+        """
+        pass  # pragma: no cover
+
+    @staticmethod
+    def _validate_num_actions(num_actions):
+        """Return num_actions if valid. Otherwise raise ValueError.
+
+        Return
+        ------
+        int
+            Number of possible actions.
+
+        Raises
+        ------
+        ValueError
+            If num_actions < 1
+
+        """
+        if num_actions < 1:
+            raise ValueError('num_actions must be >= 1')
+        return num_actions
+
 
 class FakeBasis(BasisFunction):
 
@@ -75,6 +105,10 @@ class FakeBasis(BasisFunction):
     negative action indexes.
 
     """
+
+    def __init__(self, num_actions):
+        """Initialize FakeBasis."""
+        self.__num_actions = BasisFunction._validate_num_actions(num_actions)
 
     def size(self):
         r"""Return size of 1.
@@ -126,7 +160,14 @@ class FakeBasis(BasisFunction):
         """
         if action < 0:
             raise IndexError('action index must be >= 0')
+        if action >= self.num_actions:
+            raise IndexError('action must be < num_actions')
         return np.array([1.])
+
+    @property
+    def num_actions(self):
+        """Return number of possible actions."""
+        return self.__num_actions
 
 
 class OneDimensionalPolynomialBasis(BasisFunction):
@@ -156,13 +197,11 @@ class OneDimensionalPolynomialBasis(BasisFunction):
 
     def __init__(self, degree, num_actions):
         """Initialize polynomial basis function."""
+        self.__num_actions = BasisFunction._validate_num_actions(num_actions)
+
         if degree < 0:
             raise ValueError('Degree must be >= 0')
         self.degree = degree
-
-        if num_actions < 1:
-            raise ValueError('There must be at least 1 action')
-        self.num_actions = num_actions
 
     def size(self):
         """Calculate the size of the basis function.
@@ -241,6 +280,11 @@ class OneDimensionalPolynomialBasis(BasisFunction):
 
         return phi
 
+    @property
+    def num_actions(self):
+        """Return number of possible actions."""
+        return self.__num_actions
+
 
 class RadialBasisFunction(BasisFunction):
 
@@ -289,6 +333,8 @@ class RadialBasisFunction(BasisFunction):
 
     def __init__(self, means, gamma, num_actions):
         """Initialize RBF instance."""
+        self.__num_actions = BasisFunction._validate_num_actions(num_actions)
+
         if len(means) == 0:
             raise ValueError('You must specify at least one mean')
 
@@ -301,11 +347,6 @@ class RadialBasisFunction(BasisFunction):
             raise ValueError('gamma must be > 0')
 
         self.gamma = gamma
-
-        if num_actions < 1:
-            raise ValueError('num_actions must be > 0')
-
-        self.num_actions = num_actions
 
     @staticmethod
     def __check_mean_size(left, right):
@@ -391,3 +432,8 @@ class RadialBasisFunction(BasisFunction):
     def __calc_basis_component(state, mean, gamma):
         mean_diff = state - mean
         return np.exp(-gamma*np.sum(mean_diff*mean_diff))
+
+    @property
+    def num_actions(self):
+        """Return number of possible actions."""
+        return self.__num_actions
