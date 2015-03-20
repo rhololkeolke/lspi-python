@@ -1,2 +1,10 @@
 coverage
 numpy
+flake8
+flake8-import-order
+flake8-docstrings
+flake8-print
+flake8-quotes
+sphinx
+sphinxcontrib-napoleon
+sphinx_rtd_theme
