@@ -18,14 +18,19 @@ class TestPolicy(TestCase):
         self.assertAlmostEqual(policy.discount, 1.0)
         self.assertAlmostEqual(policy.explore, 0.0)
         self.assertEqual(policy.weights.shape, (1,))
+        self.assertEqual(policy.tie_breaking_strategy,
+                         Policy.TieBreakingStrategy.RandomWins)
 
     def test_full_constructor(self):
-        policy = self.create_policy(.5, .1, np.array([1.]))
+        policy = self.create_policy(.5, .1, np.array([1.]),
+                                    Policy.TieBreakingStrategy.FirstWins)
 
         self.assertTrue(isinstance(policy.basis, FakeBasis))
         self.assertAlmostEqual(policy.discount, .5)
         self.assertAlmostEqual(policy.explore, 0.1)
         np.testing.assert_array_almost_equal(policy.weights, np.array([1.]))
+        self.assertEqual(policy.tie_breaking_strategy,
+                         Policy.TieBreakingStrategy.FirstWins)
 
     def test_discount_out_of_bounds(self):
         with self.assertRaises(ValueError):

@@ -30,6 +30,10 @@ class Policy(object):
         The weight vector which is dotted with the :math:`\phi` vector from
         basis to produce the approximate Q value. When None is passed in
         the weight vector is initialized with random weights.
+    tie_breaking_strategy: Policy.TieBreakingStrategy value
+        The strategy to use if a tie occurs when selecting the best action.
+        See the :py:class:`lspi.policy.Policy.TieBreakingStrategy`
+        class description for what the different options are.
 
     Raises
     ------
@@ -42,8 +46,27 @@ class Policy(object):
         the size of the basis function.
     """
 
+    class TieBreakingStrategy(object):
+
+        """Strategy for breaking a tie between actions in the policy.
+
+        FirstWins:
+            In the event of a tie the first action encountered with that
+            value is returned.
+        LastWins:
+            In the event of a tie the last action encountered with that
+            value is returned.
+        RandomWins
+            In the event of a tie a random action encountered with that
+            value is returned.
+
+        """
+
+        FirstWins, LastWins, RandomWins = range(3)
+
     def __init__(self, basis, discount=1.0,
-                 explore=0.0, weights=None):
+                 explore=0.0, weights=None,
+                 tie_breaking_strategy=TieBreakingStrategy.RandomWins):
         """Initialize a Policy."""
         self.basis = basis
 
@@ -63,6 +86,8 @@ class Policy(object):
             if weights.shape != (basis.size(), ):
                 raise ValueError('weights shape must equal (basis.size(), 1)')
             self.weights = weights
+
+        self.tie_breaking_strategy = tie_breaking_strategy
 
     def __copy__(self):
         """Return a copy of this class with a deep copy of the weights."""
