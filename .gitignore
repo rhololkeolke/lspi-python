@@ -1,3 +1,8 @@
+# Livereload
+Gemfile
+Gemfile.lock
+Guardfile
+
 # Sphinx
 docs/build/
 docs/source/autodoc
