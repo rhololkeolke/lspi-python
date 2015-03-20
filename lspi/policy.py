@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """LSPI Policy class used for learning and executing policy."""
 
+import random
+
 import numpy as np
 
 
@@ -125,3 +127,47 @@ class Policy(object):
             raise IndexError('action must be in range [0, num_actions)')
 
         return self.weights.dot(self.basis.evaluate(state, action))
+
+    def best_action(self, state):
+        """Select the best action according to the policy.
+
+        This calculates argmax_a Q(state, a). In otherwords it returns
+        the action that maximizes the Q value for this state.
+
+        Parameters
+        ----------
+        state: numpy.array
+            State vector.
+        tie_breaking_strategy: TieBreakingStrategy value
+            In the event of a tie specifies which action the policy should
+            return. (Defaults to random)
+
+        Returns
+        -------
+        int
+            Action index
+
+        Raises
+        ------
+        ValueError
+            If state's dimensions do not match basis functions expectations.
+
+        """
+        q_values = [self.calc_q_value(state, action)
+                    for action in range(self.basis.num_actions)]
+
+        best_q = float('-inf')
+        best_actions = []
+        for action, q_value in enumerate(q_values):
+            if q_value > best_q:
+                best_actions = [action]
+                best_q = q_value
+            elif q_value == best_q:
+                best_actions.append(action)
+
+        if self.tie_breaking_strategy == Policy.TieBreakingStrategy.FirstWins:
+            return best_actions[0]
+        elif self.tie_breaking_strategy == Policy.TieBreakingStrategy.LastWins:
+            return best_actions[-1]
+        else:
+            return random.choice(best_actions)
