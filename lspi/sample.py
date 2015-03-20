@@ -3,6 +3,7 @@
 
 
 class Sample(object):
+
     """Represents an LSPI sample tuple ``(s, a, r, s', absorb)``.
 
     Parameters
@@ -40,7 +41,7 @@ class Sample(object):
     """
 
     def __init__(self, state, action, reward, next_state, absorb=False):
-
+        """Initialize Sample instance."""
         self.state = state
         self.action = action
         self.reward = reward
@@ -48,6 +49,7 @@ class Sample(object):
         self.absorb = absorb
 
     def __repr__(self):
+        """Create string representation of tuple."""
         return 'Sample(%s, %s, %s, %s, %s)' % (self.state,
                                                self.action,
                                                self.reward,

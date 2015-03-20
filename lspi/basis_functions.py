@@ -2,12 +2,13 @@
 """Abstract Base Class for Basis Function and some common implementations."""
 
 import abc
+
 import numpy as np
 
 
 class BasisFunction(object):
 
-    """ABC for basis functions used by LSPI Policies.
+    r"""ABC for basis functions used by LSPI Policies.
 
     A basis function is a function that takes in a state vector and an action
     index and returns a vector of features. The resulting feature vector is
@@ -27,7 +28,7 @@ class BasisFunction(object):
 
     @abc.abstractmethod
     def size(self):
-        """Return the vector size of the basis function.
+        r"""Return the vector size of the basis function.
 
         Returns
         -------
@@ -40,7 +41,7 @@ class BasisFunction(object):
 
     @abc.abstractmethod
     def evaluate(self, state, action):
-        """Calculate the :math:`\phi` matrix for the given state-action pair.
+        r"""Calculate the :math:`\phi` matrix for the given state-action pair.
 
         The way this value is calculated depends entirely on the concrete
         implementation of BasisFunction.
@@ -65,6 +66,7 @@ class BasisFunction(object):
 
 
 class OneDimensionalPolynomialBasis(BasisFunction):
+
     """Polynomial features for a state with one dimension.
 
     Takes the value of the state and constructs a vector proportional
@@ -89,6 +91,7 @@ class OneDimensionalPolynomialBasis(BasisFunction):
     """
 
     def __init__(self, degree, num_actions):
+        """Initialize polynomial basis function."""
         if degree < 0:
             raise ValueError('Degree must be >= 0')
         self.degree = degree
@@ -122,7 +125,7 @@ class OneDimensionalPolynomialBasis(BasisFunction):
         return (self.degree + 1) * self.num_actions
 
     def evaluate(self, state, action):
-        """Calculate :math:`\phi` matrix for given state action pair
+        r"""Calculate :math:`\phi` matrix for given state action pair.
 
         The :math:`\phi` matrix is used to calculate the Q function for the
         given policy.
@@ -157,12 +160,11 @@ class OneDimensionalPolynomialBasis(BasisFunction):
         array([ 1.,  2.,  4.,  0.,  0.,  0.])
 
         """
-
         if action < 0 or action >= self.num_actions:
-            raise IndexError("Action index out of bounds")
+            raise IndexError('Action index out of bounds')
 
         if state.shape != (1, ):
-            raise ValueError("This class only supports one dimensional states")
+            raise ValueError('This class only supports one dimensional states')
 
         phi = np.zeros((self.size(), ))
 
@@ -177,7 +179,8 @@ class OneDimensionalPolynomialBasis(BasisFunction):
 
 
 class RadialBasisFunction(BasisFunction):
-    """Gaussian Multidimensional Radial Basis Function (RBF).
+
+    r"""Gaussian Multidimensional Radial Basis Function (RBF).
 
     Given a set of k means :math:`(\mu_1 , \ldots, \mu_k)` produce a feature
     vector :math:`(1, e^{-\gamma || s - \mu_1 ||^2}, \cdots,
@@ -221,27 +224,40 @@ class RadialBasisFunction(BasisFunction):
     """
 
     def __init__(self, means, gamma, num_actions):
+        """Initialize RBF instance."""
         if len(means) == 0:
-            raise ValueError("You must specify at least one mean")
+            raise ValueError('You must specify at least one mean')
 
         if reduce(RadialBasisFunction.__check_mean_size, means) is None:
-            raise ValueError("All mean vectors must have the same dimensions")
+            raise ValueError('All mean vectors must have the same dimensions')
 
         self.means = means
 
         if gamma <= 0:
-            raise ValueError("gamma must be > 0")
+            raise ValueError('gamma must be > 0')
 
         self.gamma = gamma
 
         if num_actions < 1:
-            raise ValueError("num_actions must be > 0")
+            raise ValueError('num_actions must be > 0')
 
         self.num_actions = num_actions
 
     @staticmethod
     def __check_mean_size(left, right):
-        """Apply f if the value is not None."""
+        """Apply f if the value is not None.
+
+        This method is meant to be used with reduce. It will return either the
+        right most numpy array or None if any of the array's had
+        differing sizes. I wanted to use a Maybe monad here,
+        but Python doesn't support that out of the box.
+
+        Return
+        ------
+        None or numpy.array
+            None values will propogate through the reduce automatically.
+
+        """
         if left is None or right is None:
             return None
         else:
@@ -250,7 +266,7 @@ class RadialBasisFunction(BasisFunction):
         return right
 
     def size(self):
-        """Calculate size of the :math:`\phi` matrix.
+        r"""Calculate size of the :math:`\phi` matrix.
 
         The size is equal to the number of means + 1 times the number of
         number actions.
@@ -264,7 +280,7 @@ class RadialBasisFunction(BasisFunction):
         return (len(self.means) + 1) * self.num_actions
 
     def evaluate(self, state, action):
-        """Calculate the :math:`\phi` matrix.
+        r"""Calculate the :math:`\phi` matrix.
 
         Matrix will have the following form:
 
@@ -289,11 +305,11 @@ class RadialBasisFunction(BasisFunction):
 
         """
         if action < 0 or action >= self.num_actions:
-            raise IndexError("Action index out of bounds")
+            raise IndexError('Action index out of bounds')
 
         if state.shape != self.means[0].shape:
-            raise ValueError("Dimensions of state must match "
-                             "dimensions of means")
+            raise ValueError('Dimensions of state must match '
+                             'dimensions of means')
 
         phi = np.zeros((self.size(), ))
         offset = self.size()*action
