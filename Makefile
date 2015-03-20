@@ -1,4 +1,4 @@
-.PHONY: html-docs clean clean-pyc test all flake8 sphinx-apidoc
+.PHONY: html-docs clean clean-pyc test all flake8 sphinx-apidoc travis-test
 
 all: lspienv flake8 test html-docs 
 
@@ -29,4 +29,7 @@ clean-docs:
 	$(MAKE) -C docs clean
 
 test:
-	. lspienv/bin/activate; nosetests lspi_testsuite
+	. lspienv/bin/activate; nosetests --config=setup.cfg lspi_testsuite
+
+travis-test:
+	nosetests --config=setup.cfg lspi_testsuite
