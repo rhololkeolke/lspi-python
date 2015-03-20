@@ -65,6 +65,70 @@ class BasisFunction(object):
         pass  # pragma: no cover
 
 
+class FakeBasis(BasisFunction):
+
+    r"""Basis that ignores all input. Useful for random sampling.
+
+    When creating a purely random Policy a basis function is still required.
+    This basis function just returns a :math:`\phi` equal to [1.] for all
+    inputs. It will however, still throw exceptions for impossible values like
+    negative action indexes.
+
+    """
+
+    def size(self):
+        r"""Return size of 1.
+
+        Returns
+        -------
+        int
+            Size of :math:`phi` which is always 1 for FakeBasis
+
+        Example
+        -------
+
+        >>> FakeBasis().size()
+        1
+
+        """
+        return 1
+
+    def evaluate(self, state, action):
+        r"""Return :math:`\phi` equal to [1.].
+
+        Parameters
+        ----------
+        state : numpy.array
+            The state to get the features for.
+            When calculating Q(s, a) this is the s. FakeBasis ignores these
+            values.
+        action : int
+            The action index to get the features for.
+            When calculating Q(s, a) this is the a. FakeBasis ignores these
+            values.
+
+        Returns
+        -------
+        numpy.array
+            :math:`\phi` vector equal to [1.].
+
+        Raises
+        ------
+        IndexError
+            If action index is < 0
+
+        Example
+        -------
+
+        >>> FakeBasis().evaluate(np.arange(10), 0)
+        array([ 1.])
+
+        """
+        if action < 0:
+            raise IndexError('action index must be >= 0')
+        return np.array([1.])
+
+
 class OneDimensionalPolynomialBasis(BasisFunction):
 
     """Polynomial features for a state with one dimension.

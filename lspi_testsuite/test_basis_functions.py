@@ -3,6 +3,7 @@
 from unittest import TestCase
 
 from lspi.basis_functions import (BasisFunction,
+    FakeBasis,
     OneDimensionalPolynomialBasis,
     RadialBasisFunction)
 import numpy as np
@@ -39,6 +40,21 @@ class TestBasisFunction(TestCase):
                 pass
 
         ShouldWorkBasis()
+
+class TestFakeBasis(TestCase):
+    def setUp(self):
+        self.basis = FakeBasis()
+
+    def test_size(self):
+        self.assertEqual(self.basis.size(), 1)
+
+    def test_evaluate(self):
+        np.testing.assert_array_almost_equal(self.basis.evaluate(None, 0),
+                                             np.array([1.]))
+
+    def test_evaluate_negative_action_index(self):
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(None, -1)
 
 class TestOneDimensionalPolynomialBasis(TestCase):
     def setUp(self):
