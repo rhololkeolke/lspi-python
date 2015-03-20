@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 from lspi.policy import Policy
-from lspi.basis_functions import FakeBasis
+from lspi.basis_functions import FakeBasis, OneDimensionalPolynomialBasis
 import numpy as np
 from copy import copy
 
@@ -10,6 +10,11 @@ class TestPolicy(TestCase):
 
     def create_policy(self, *args, **kwargs):
         return Policy(FakeBasis(5), *args, **kwargs)
+
+    def setUp(self):
+        self.poly_policy = Policy(OneDimensionalPolynomialBasis(1, 2),
+                                  weights=np.array([1., 1, 2, 2]))
+        self.state = np.array([-3.])
 
     def test_default_constructor(self):
         policy = self.create_policy()
@@ -73,3 +78,23 @@ class TestPolicy(TestCase):
         with self.assertRaises(AssertionError):
             np.testing.assert_array_almost_equal(orig_policy.weights,
                                                  policy_copy.weights)
+
+    def test_calc_q_value_unit_weights(self):
+        q_value = self.poly_policy.calc_q_value(self.state, 0)
+        self.assertAlmostEqual(q_value, -2.)
+
+    def test_calc_q_value_non_unit_weights(self):
+        q_value = self.poly_policy.calc_q_value(self.state, 1)
+        self.assertAlmostEqual(q_value, -4.)
+
+    def test_calc_q_value_negative_action(self):
+        with self.assertRaises(IndexError):
+            self.poly_policy.calc_q_value(self.state, -1)
+
+    def test_calc_q_value_out_of_bounds_action(self):
+        with self.assertRaises(IndexError):
+            self.poly_policy.calc_q_value(self.state, 2)
+
+    def test_calc_q_value_mismatched_state_dimensions(self):
+        with self.assertRaises(ValueError):
+            self.poly_policy.calc_q_value(np.ones((2,)), 0)

@@ -95,3 +95,33 @@ class Policy(object):
                       self.discount,
                       self.explore,
                       self.weights.copy())
+
+    def calc_q_value(self, state, action):
+        """Calculate the Q function for the given state action pair.
+
+        Parameters
+        ----------
+        state: numpy.array
+            State vector that Q value is being calculated for. This is
+            the s in Q(s, a)
+        action: int
+            Action index that Q value is being calculated for. This is
+            the a in Q(s, a)
+
+        Return
+        ------
+        float
+            The Q value for the state action pair
+
+        Raises
+        ------
+        ValueError
+            If state's dimensions do not conform to basis function expectations
+        ValueError
+            If action is outside of the range of valid action indexes
+
+        """
+        if action < 0 or action >= self.basis.num_actions:
+            raise IndexError('action must be in range [0, num_actions)')
+
+        return self.weights.dot(self.basis.evaluate(state, action))
