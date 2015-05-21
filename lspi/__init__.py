@@ -14,4 +14,7 @@ http://www.cs.duke.edu/research/AI/LSPI/
 
 """
 
+from basis_functions import BasisFunction  # noqa
+from lspi import learn  # noqa
 from sample import Sample  # noqa
+from solvers import Solver  # noqa

@@ -96,7 +96,8 @@ class Policy(object):
         return Policy(self.basis,
                       self.discount,
                       self.explore,
-                      self.weights.copy())
+                      self.weights.copy(),
+                      self.tie_breaking_strategy)
 
     def calc_q_value(self, state, action):
         """Calculate the Q function for the given state action pair.
