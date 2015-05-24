@@ -455,7 +455,7 @@ class RadialBasisFunction(BasisFunction):
                              'dimensions of means')
 
         phi = np.zeros((self.size(), ))
-        offset = self.size()*action
+        offset = (len(self.means[0])+1)*action
 
         rbf = [RadialBasisFunction.__calc_basis_component(state,
                                                           mean,

@@ -32,7 +32,6 @@ class TestChainDomain(TestCase):
     def test_init_parameters_are_used(self):
         """Test that init parameters are used."""
 
-        self.assertEquals(len(self.domain.current_state()), self.num_states)
         self.assertEquals(self.domain.reward_location,
                           self.reward_location)
         self.assertEquals(self.domain.failure_probability,
@@ -43,36 +42,20 @@ class TestChainDomain(TestCase):
 
         self.assertEquals(self.domain.num_actions(), 2)
 
-    def test_current_state(self):
-        """Test ChainDomain current_state implementation."""
-
-        curr_state = self.domain.current_state()
-        self.assertEquals(len(curr_state), self.num_states)
-        # there should only be one state marked as occupied
-        self.assertEquals(len(np.where(curr_state == 1)[0]), 1)
-
     def test_reset_with_no_specified_state(self):
         """Test reset with no specified state."""
 
-        self.domain.reset()
-
-        curr_state = self.domain.current_state()
-        self.assertEquals(len(curr_state), self.num_states)
-        # there should only be one state marked as occupied
-        self.assertEquals(len(np.where(curr_state == 1)[0]), 1)
+        self.domain.reset() # basically test that no exception is thrown
 
     def test_reset_with_specified_state(self):
         """Test reset with a valid state specified."""
 
-        new_state = np.zeros(self.num_states)
-        new_state[0] = 1
+        new_state = np.array([0])
 
         self.domain.reset(new_state)
 
         curr_state = self.domain.current_state()
-        self.assertEquals(len(curr_state), self.num_states)
-        self.assertEquals(len(np.where(curr_state == 1)[0]), 1)
-        self.assertEquals(curr_state[0], 1)
+        self.assertEquals(curr_state[0], 0)
 
     def test_reset_with_diff_sized_state(self):
         """Test state vector with different sized state."""
@@ -83,36 +66,15 @@ class TestChainDomain(TestCase):
         with self.assertRaises(ValueError):
             self.domain.reset(new_state)
 
-    def test_reset_with_no_occupied_location(self):
-        """Test reset with a state that has no occupied location."""
-
-        new_state = np.zeros(self.num_states)
-
-        with self.assertRaises(ValueError):
-            self.domain.reset(new_state)
-
-    def test_reset_with_multiple_occupied_locations(self):
-        """Test reset with multiple locations marked as occupied."""
-
-        new_state = np.zeros(self.num_states)
-        new_state[0] = 1
-        new_state[1] = 1
-
-        with self.assertRaises(ValueError):
-            self.domain.reset(new_state)
-
     def test_reset_with_invalid_values(self):
         """Test reset with values in state not equal to 0 or 1."""
 
-        new_state = np.zeros(self.num_states)
-        new_state[0] = .5
+        new_state = np.array([-1])
 
         with self.assertRaises(ValueError):
             self.domain.reset(new_state)
 
-        new_state = np.zeros(self.num_states, dtype=int)
-        new_state[0] = 1
-        new_state[1] = 2
+        new_state = np.array([self.num_states])
 
         with self.assertRaises(ValueError):
             self.domain.reset(new_state)
@@ -127,8 +89,7 @@ class TestChainDomain(TestCase):
         """Test deterministic left action."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[2] = 1
+        starting_state = np.array([2])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -138,9 +99,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[1] = 1
-        expected_state[2] = 0
+        expected_state = np.array([1])
 
         sample = chain_domain.apply_action(0)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -155,8 +114,7 @@ class TestChainDomain(TestCase):
         """Test deterministic left action at the end of the chain."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[0] = 1
+        starting_state = np.array([0])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -181,8 +139,7 @@ class TestChainDomain(TestCase):
         """Test deterministic right action."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[-3] = 1
+        starting_state = np.array([num_states-3])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -192,9 +149,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[-3] = 0
-        expected_state[-2] = 1
+        expected_state = np.array([num_states-2])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -209,8 +164,7 @@ class TestChainDomain(TestCase):
         """Test deterministic right action at the end of the chain."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[-1] = 1
+        starting_state = np.array([num_states-1])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -235,8 +189,7 @@ class TestChainDomain(TestCase):
         """Test failing left action."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[1] = 1
+        starting_state = np.array([1])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -246,9 +199,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[1] = 0
-        expected_state[2] = 1
+        expected_state = np.array([2])
 
         sample = chain_domain.apply_action(0)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -263,8 +214,7 @@ class TestChainDomain(TestCase):
         """Test failing right action."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[2] = 1
+        starting_state = np.array([2])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -274,9 +224,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[2] = 0
-        expected_state[1] = 1
+        expected_state = np.array([1])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -291,8 +239,7 @@ class TestChainDomain(TestCase):
         """Test rewards at end chain."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[0] = 1
+        starting_state = np.array([0])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Ends,
@@ -313,8 +260,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       expected_state)
 
-        starting_state[0] = 0
-        starting_state[-1] = 1
+        starting_state = np.array([num_states-1])
 
         chain_domain.reset(starting_state)
 
@@ -336,8 +282,7 @@ class TestChainDomain(TestCase):
         """Test chain with rewards in the middle."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[num_states/2-1] = 1
+        starting_state = np.array([num_states/2-1])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.Middle,
@@ -347,9 +292,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[num_states/2] = 1
-        expected_state[num_states/2-1] = 0
+        expected_state = np.array([num_states/2])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -362,8 +305,7 @@ class TestChainDomain(TestCase):
 
         starting_state = expected_state.copy()
 
-        expected_state[num_states/2+1] = 1
-        expected_state[num_states/2] = 0
+        expected_state = np.array([num_states/2+1])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -376,8 +318,7 @@ class TestChainDomain(TestCase):
 
         starting_state = expected_state.copy()
 
-        expected_state[num_states/2+2] = 1
-        expected_state[num_states/2+1] = 0
+        expected_state = np.array([num_states/2+2])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -392,8 +333,7 @@ class TestChainDomain(TestCase):
         """Test chain with rewards in the middle."""
 
         num_states = 10
-        starting_state = np.zeros(num_states, dtype=np.int)
-        starting_state[num_states/4-1] = 1
+        starting_state = np.array([num_states/4-1])
 
         chain_domain = ChainDomain(num_states,
                                    ChainDomain.RewardLocation.HalfMiddles,
@@ -403,9 +343,7 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[num_states/4] = 1
-        expected_state[num_states/4-1] = 0
+        expected_state = np.array([num_states/4])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -416,16 +354,13 @@ class TestChainDomain(TestCase):
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       expected_state)
 
-        starting_state[num_states/4-1] = 0
-        starting_state[3*num_states/4-1] = 1
+        starting_state = np.array([3*num_states/4-1])
         chain_domain.reset(starting_state)
 
         np.testing.assert_array_equal(chain_domain.current_state(),
                                       starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[3*num_states/4] = 1
-        expected_state[3*num_states/4-1] = 0
+        expected_state = np.array([3*num_states/4])
 
         sample = chain_domain.apply_action(1)
         np.testing.assert_array_equal(sample.state, starting_state)
@@ -438,9 +373,7 @@ class TestChainDomain(TestCase):
 
         chain_domain.reset(starting_state)
 
-        expected_state = starting_state.copy()
-        expected_state[3*num_states/4-2] = 1
-        expected_state[3*num_states/4-1] = 0
+        expected_state = np.array([3*num_states/4-2])
 
         sample = chain_domain.apply_action(0)
         np.testing.assert_array_equal(sample.state, starting_state)

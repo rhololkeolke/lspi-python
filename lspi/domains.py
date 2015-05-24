@@ -226,16 +226,13 @@ class ChainDomain(Domain):
             action_failed = True
 
         # this assumes that the state has one and only one occupied location
-        occupied_location = np.where(self._state == 1)[0][0]
         if (action == 0 and not action_failed) \
                 or (action == 1 and action_failed):
-            new_location = max(0, occupied_location-1)
+            new_location = max(0, self._state[0]-1)
         else:
-            new_location = min(self.num_states-1, occupied_location+1)
+            new_location = min(self.num_states-1, self._state[0]+1)
 
-        next_state = self._state.copy()
-        next_state[occupied_location] = 0
-        next_state[new_location] = 1
+        next_state = np.array([new_location])
 
         reward = 0
         if self.reward_location == ChainDomain.RewardLocation.Ends:
@@ -289,15 +286,13 @@ class ChainDomain(Domain):
         if initial_state is None:
             self._state = ChainDomain.__init_random_state(self.num_states)
         else:
-            if initial_state.shape != (self.num_states, ):
+            if initial_state.shape != (1, ):
                 raise ValueError('The specified state did not match the '
                                  + 'current state size')
             state = initial_state.astype(np.int)
-            if len(np.where(state == 1)[0]) != 1:
-                raise ValueError('There must be one and only one state'
-                                 + ' with value 1.')
-            if len(np.where(state == 0)[0]) != self.num_states-1:
-                raise ValueError('State contains values other than 0 and 1.')
+            if state[0] < 0 or state[0] >= self.num_states:
+                raise ValueError('State value must be in range '
+                                 + '[0, num_states)')
             self._state = state
 
     def action_name(self, action):
@@ -318,6 +313,4 @@ class ChainDomain(Domain):
     @staticmethod
     def __init_random_state(num_states):
         """Return randomly initialized state of the specified size."""
-        new_state = np.zeros(num_states, dtype=np.int)
-        new_state[randint(0, num_states-1)] = 1
-        return new_state
+        return np.array([randint(0, num_states-1)])
