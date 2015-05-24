@@ -5,7 +5,8 @@ from unittest import TestCase
 from lspi.basis_functions import (BasisFunction,
     FakeBasis,
     OneDimensionalPolynomialBasis,
-    RadialBasisFunction)
+    RadialBasisFunction,
+    ExactBasis)
 import numpy as np
 
 class TestBasisFunction(TestCase):
@@ -251,3 +252,117 @@ class TestRadialBasisFunction(TestCase):
 
         with self.assertRaises(ValueError):
             self.basis.evaluate(np.zeros((2, )), 0)
+
+class TestExactBasis(TestCase):
+    def setUp(self):
+        self.basis = ExactBasis([2, 3, 4], 2)
+
+    def test_invalid_num_states(self):
+        num_states = np.ones(3)
+        num_states[0] = 0
+
+        with self.assertRaises(ValueError):
+            ExactBasis(num_states, 2)
+
+    def test_num_actions_property(self):
+        self.assertEqual(self.basis.num_actions, 2)
+
+    def test_num_actions_setter(self):
+        self.basis.num_actions = 3
+
+        self.assertEqual(self.basis.num_actions, 3)
+
+    def test_num_actions_setter_invalid_value(self):
+        with self.assertRaises(ValueError):
+            self.basis.num_actions = 0
+
+    def test_size(self):
+        self.assertEqual(self.basis.size(), 48)
+
+    def test_evaluate(self):
+        phi = self.basis.evaluate(np.array([0, 0, 0]), 0)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[0] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+        phi = self.basis.evaluate(np.array([1, 0, 0]), 0)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[1] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+        phi = self.basis.evaluate(np.array([0, 1, 0]), 0)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[2] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+        phi = self.basis.evaluate(np.array([0, 0, 1]), 0)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[6] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+        phi = self.basis.evaluate(np.array([0, 0, 0]), 1)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[24] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+        phi = self.basis.evaluate(np.array([1, 2, 3]), 1)
+        self.assertEqual(phi.shape, (48, ))
+
+        expected_phi = np.zeros((48, ))
+        expected_phi[47] = 1
+
+        np.testing.assert_array_almost_equal(phi, expected_phi)
+
+    def test_evaluate_out_of_bounds_action(self):
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(np.array([0, 0, 0]), -1)
+
+
+        with self.assertRaises(IndexError):
+            self.basis.evaluate(np.array([0, 0, 0]), 3)
+
+    def test_evaluate_out_of_bounds_state(self):
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([-1, 0, 0]), 0)
+
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0, -1, 0]), 0)
+
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0, 0, -1]), 0)
+
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([2, 0, 0]), 0)
+
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0, 3, 0]), 0)
+
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0, 0, 4]), 0)
+
+    def test_evaluate_wrong_size_state(self):
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0]), 0)
+
+        with self.assertRaises(ValueError):
+            self.basis.evaluate(np.array([0, 0, 0, 0]), 0)
