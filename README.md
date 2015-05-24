@@ -1,5 +1,7 @@
 # LSPI Python
 
+[![Build Status](https://travis-ci.org/rhololkeolke/lspi-python.svg?branch=master)](https://travis-ci.org/rhololkeolke/lspi-python)
+
 This is a Python implementation of the Least Squares Policy Iteration (LSPI) reinforcement learning algorithm.
 For more information on the algorithm please refer to the paper
 
