@@ -1,5 +1,6 @@
 coverage
 numpy
+scipy
 flake8==2.4.0
 flake8-import-order
 flake8-docstrings
