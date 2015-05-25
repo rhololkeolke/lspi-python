@@ -10,3 +10,5 @@ sphinx
 sphinxcontrib-napoleon
 sphinx_rtd_theme
 mccabe==0.2.1
+wheel
+twine
